@@ -74,49 +74,49 @@
       return seatsArray;
     }
 
-    // Function to display seats on the page
+    
     function displaySeats(seats) {
       const seatingGrid = document.getElementById('seatingGrid');
-      seatingGrid.innerHTML = '';  // Clear the current grid
+      seatingGrid.innerHTML = ''; 
       seats.forEach((row, rowIndex) => {
         row.forEach((seat, colIndex) => {
           const seatDiv = document.createElement('div');
           seatDiv.classList.add('seat', 'w-10', 'h-10', 'flex', 'items-center', 'justify-center', 'rounded-lg');
-          seatDiv.classList.add(seat === EMPTY_SEAT ? 'bg-gray-300' : 'bg-blue-500');  // Empty = gray, Booked = blue
-          seatDiv.textContent = `${rowIndex + 1},${colIndex + 1}`;  // Show seat position
+          seatDiv.classList.add(seat === EMPTY_SEAT ? 'bg-gray-300' : 'bg-blue-500'); 
+          seatDiv.textContent = `${rowIndex + 1},${colIndex + 1}`;  
           seatingGrid.appendChild(seatDiv);
         });
       });
     }
 
-    // Book a single seat when "Book" is clicked
+    
     document.getElementById('bookSeatBtn').addEventListener('click', () => {
       const row = parseInt(document.getElementById('seatRow').value) - 1;
       const col = parseInt(document.getElementById('seatCol').value) - 1;
-      if (theaterSeats[row][col] === EMPTY_SEAT) {  // Check if seat is available
-        theaterSeats[row][col] = BOOKED_SEAT;  // Mark seat as booked
+      if (theaterSeats[row][col] === EMPTY_SEAT) {  
+        theaterSeats[row][col] = BOOKED_SEAT;  
         showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} is booked!`);
       } else {
         showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} is already booked.`);
       }
-      displaySeats(theaterSeats);  // Refresh the seating display
+      displaySeats(theaterSeats);  
     });
 
-    // Book a group of seats
+   
     document.getElementById('bookGroupBtn').addEventListener('click', () => {
       const row = parseInt(document.getElementById('groupRow').value) - 1;
       const groupSize = parseInt(document.getElementById('groupSize').value);
       let consecutiveEmptySeats = 0;
 
-      // Look for consecutive empty seats in the selected row
+      
       for (let i = 0; i < totalCols; i++) {
         if (theaterSeats[row][i] === EMPTY_SEAT) {
           consecutiveEmptySeats++;
         } else {
-          consecutiveEmptySeats = 0;  // Reset if a booked seat is found
+          consecutiveEmptySeats = 0; 
         }
 
-        // If enough consecutive seats found, book them
+       
         if (consecutiveEmptySeats === groupSize) {
           for (let j = i - groupSize + 1; j <= i; j++) {
             theaterSeats[row][j] = BOOKED_SEAT;
@@ -129,20 +129,20 @@
       showFeedback(`Not enough consecutive seats in Row ${row + 1}.`);
     });
 
-    // Cancel a booked seat
+   
     document.getElementById('cancelSeatBtn').addEventListener('click', () => {
       const row = parseInt(document.getElementById('cancelRow').value) - 1;
       const col = parseInt(document.getElementById('cancelCol').value) - 1;
-      if (theaterSeats[row][col] === BOOKED_SEAT) {  // Check if seat is booked
-        theaterSeats[row][col] = EMPTY_SEAT;  // Mark seat as available
+      if (theaterSeats[row][col] === BOOKED_SEAT) { 
+        theaterSeats[row][col] = EMPTY_SEAT;  
         showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} has been canceled.`);
       } else {
         showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} was not booked.`);
       }
-      displaySeats(theaterSeats);  // Refresh the seating display
+      displaySeats(theaterSeats); 
     });
 
-    // Function to show feedback messages to the user
+   
     function showFeedback(message) {
       const feedbackMsg = document.getElementById('feedbackMsg');
       feedbackMsg.textContent = message;  // Display the message
