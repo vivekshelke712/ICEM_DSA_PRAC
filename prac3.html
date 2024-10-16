@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traffic Data Analysis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-5 bg-white shadow-lg mt-10">
+    <h1 class="text-3xl font-bold mb-6 text-center">Traffic Data Analysis</h1>
+
+    <!-- Display results -->
+    <div class="mb-5">
+      <button id="analyzeBtn" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Analyze Traffic Data</button>
+    </div>
+    
+    <div id="result" class="text-center text-lg font-semibold"></div>
+  </div>
+
+  <script>
+    
+    let trafficData = [];
+
+   
+    function collectTrafficData(lanes) {
+      for (let i = 0; i < lanes; i++) {
+        let laneData = {
+          lane: i + 1,
+          carCount: Math.floor(Math.random() * 100), 
+          avgSpeed: Math.floor(Math.random() * 100) + 20, 
+          entryTime: Math.floor(Math.random() * 24), 
+          exitTime: Math.floor(Math.random() * 24) 
+        };
+        trafficData.push(laneData); 
+      }
+    }
+
+    
+    function sortTrafficByCarCount() {
+      return trafficData.sort((a, b) => b.carCount - a.carCount); 
+    }
+
+    
+    function searchLowSpeedLanes(threshold) {
+      return trafficData.filter(lane => lane.avgSpeed < threshold); 
+    }
+
+    
+    function aggregateTrafficData() {
+      let totalCars = trafficData.reduce((total, lane) => total + lane.carCount, 0); 
+      let totalSpeed = trafficData.reduce((total, lane) => total + lane.avgSpeed, 0);
+      let avgSpeed = totalSpeed / trafficData.length; 
+
+      return { totalCars, avgSpeed }; 
+    }
+
+    
+    function displayTrafficAnalysis() {
+      
+      collectTrafficData(5);
+
+     
+      let sortedByCarCount = sortTrafficByCarCount();
+
+      
+      let slowLanes = searchLowSpeedLanes(50);
+
+     
+      let { totalCars, avgSpeed } = aggregateTrafficData();
+
+      
+      document.getElementById('result').innerHTML = `
+        <p>Total Cars: ${totalCars}</p>
+        <p>Average Speed: ${avgSpeed.toFixed(2)} km/h</p>
+        <p>Busiest Lane: Lane ${sortedByCarCount[0].lane} with ${sortedByCarCount[0].carCount} cars</p>
+        <p>Number of Slow Lanes (speed < 50 km/h): ${slowLanes.length}</p>
+      `;
+    }
+
+   
+    document.getElementById('analyzeBtn').addEventListener('click', displayTrafficAnalysis);
+  </script>
+</body>
+</html>

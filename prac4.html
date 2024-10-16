@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drone Mapping System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-5 bg-white shadow-lg mt-10">
+    <h1 class="text-3xl font-bold mb-6 text-center">Drone Mapping System</h1>
+    
+    <div id="regionData" class="text-center mb-4"></div>
+    <button id="extractBtn" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Extract Region Data</button>
+  </div>
+
+  <script>
+    
+    const geoData = [
+      [ // Latitude row 1
+        { lat: 10, lon: 20, alt: 500 }, { lat: 10, lon: 21, alt: 520 }
+      ],
+      [ // Latitude row 2
+        { lat: 11, lon: 20, alt: 510 }, { lat: 11, lon: 21, alt: 530 }
+      ]
+    ];
+
+    // Function to extract data for a region (by latitude and longitude range)
+    function extractRegionData(minLat, maxLat, minLon, maxLon) {
+      return geoData.flat().filter(point => 
+        point.lat >= minLat && point.lat <= maxLat && 
+        point.lon >= minLon && point.lon <= maxLon
+      );
+    }
+
+   
+    document.getElementById('extractBtn').addEventListener('click', () => {
+      const region = extractRegionData(10, 11, 20, 21); 
+      document.getElementById('regionData').innerHTML = 
+        region.map(pt => `Lat: ${pt.lat}, Lon: ${pt.lon}, Alt: ${pt.alt}`).join('<br>');
+    });
+  </script>
+</body>
+</html>

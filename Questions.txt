@@ -1,0 +1,11 @@
+Dynamic Inventory Management System:
+Design an inventory management system for a warehouse using a 1-D array. The array should store product details (ID, name, quantity, and price). Implement operations for adding new products, updating inventory levels, and calculating the total inventory value dynamically.
+
+Real-time Seating Arrangement:
+Create a 2-D array to represent seating arrangements for a movie theater. The system should handle seat booking and cancellation requests dynamically. Add constraints for group bookings, ensuring they are seated together.
+
+Traffic Data Analysis:
+Collect real-time traffic data (e.g., car counts, speed, and entry/exit times) on multiple road lanes using a dynamic array. Analyze traffic flow patterns for peak hours using array operations like sorting, searching, and aggregation.
+
+Multi-Dimensional Data Representation:
+Design a multi-dimensional array to represent geographical data (e.g., latitude, longitude, altitude) for a drone-based mapping system. Implement functions to extract and manipulate data for different regions dynamically.

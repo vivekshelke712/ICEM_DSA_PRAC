@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Theater Seating</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto my-10 p-5 bg-white shadow-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center">Movie Theater Seating</h1>
+    
+    <!-- Seating area -->
+    <div id="seatingGrid" class="grid grid-cols-10 gap-2 justify-center"></div>
+
+    <!-- Controls for booking and canceling -->
+    <div class="mt-8 flex justify-center space-x-4">
+      
+      <!-- Single Seat Booking -->
+      <div class="flex flex-col items-center">
+        <h2 class="font-semibold mb-2">Book a Seat</h2>
+        <div>
+          <input id="seatRow" type="number" placeholder="Row" class="border p-2 rounded-lg mr-2 w-16">
+          <input id="seatCol" type="number" placeholder="Col" class="border p-2 rounded-lg w-16">
+          <button id="bookSeatBtn" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Book</button>
+        </div>
+      </div>
+
+      <!-- Group Booking -->
+      <div class="flex flex-col items-center">
+        <h2 class="font-semibold mb-2">Book Group</h2>
+        <div>
+          <input id="groupRow" type="number" placeholder="Row" class="border p-2 rounded-lg mr-2 w-16">
+          <input id="groupSize" type="number" placeholder="Group Size" class="border p-2 rounded-lg w-16">
+          <button id="bookGroupBtn" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Book Group</button>
+        </div>
+      </div>
+
+      <!-- Cancel Seat -->
+      <div class="flex flex-col items-center">
+        <h2 class="font-semibold mb-2">Cancel Seat</h2>
+        <div>
+          <input id="cancelRow" type="number" placeholder="Row" class="border p-2 rounded-lg mr-2 w-16">
+          <input id="cancelCol" type="number" placeholder="Col" class="border p-2 rounded-lg w-16">
+          <button id="cancelSeatBtn" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Display -->
+    <div id="feedbackMsg" class="mt-5 text-center text-xl font-bold"></div>
+  </div>
+
+  <script>
+    // Set up the theater dimensions and statuses for seats
+    const totalRows = 5;
+    const totalCols = 10;
+    const EMPTY_SEAT = 0;
+    const BOOKED_SEAT = 1;
+
+    // Initialize seating layout (empty)
+    let theaterSeats = initializeSeats(totalRows, totalCols);
+
+    // Create a seating layout (2D array of empty seats)
+    function initializeSeats(rows, cols) {
+      let seatsArray = [];  // Create an empty array
+      for (let i = 0; i < rows; i++) {
+        seatsArray[i] = [];
+        for (let j = 0; j < cols; j++) {
+          seatsArray[i][j] = EMPTY_SEAT;  // Mark all seats as empty initially
+        }
+      }
+      displaySeats(seatsArray);  // Draw the seats on the page
+      return seatsArray;
+    }
+
+    // Function to display seats on the page
+    function displaySeats(seats) {
+      const seatingGrid = document.getElementById('seatingGrid');
+      seatingGrid.innerHTML = '';  // Clear the current grid
+      seats.forEach((row, rowIndex) => {
+        row.forEach((seat, colIndex) => {
+          const seatDiv = document.createElement('div');
+          seatDiv.classList.add('seat', 'w-10', 'h-10', 'flex', 'items-center', 'justify-center', 'rounded-lg');
+          seatDiv.classList.add(seat === EMPTY_SEAT ? 'bg-gray-300' : 'bg-blue-500');  // Empty = gray, Booked = blue
+          seatDiv.textContent = `${rowIndex + 1},${colIndex + 1}`;  // Show seat position
+          seatingGrid.appendChild(seatDiv);
+        });
+      });
+    }
+
+    // Book a single seat when "Book" is clicked
+    document.getElementById('bookSeatBtn').addEventListener('click', () => {
+      const row = parseInt(document.getElementById('seatRow').value) - 1;
+      const col = parseInt(document.getElementById('seatCol').value) - 1;
+      if (theaterSeats[row][col] === EMPTY_SEAT) {  // Check if seat is available
+        theaterSeats[row][col] = BOOKED_SEAT;  // Mark seat as booked
+        showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} is booked!`);
+      } else {
+        showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} is already booked.`);
+      }
+      displaySeats(theaterSeats);  // Refresh the seating display
+    });
+
+    // Book a group of seats
+    document.getElementById('bookGroupBtn').addEventListener('click', () => {
+      const row = parseInt(document.getElementById('groupRow').value) - 1;
+      const groupSize = parseInt(document.getElementById('groupSize').value);
+      let consecutiveEmptySeats = 0;
+
+      // Look for consecutive empty seats in the selected row
+      for (let i = 0; i < totalCols; i++) {
+        if (theaterSeats[row][i] === EMPTY_SEAT) {
+          consecutiveEmptySeats++;
+        } else {
+          consecutiveEmptySeats = 0;  // Reset if a booked seat is found
+        }
+
+        // If enough consecutive seats found, book them
+        if (consecutiveEmptySeats === groupSize) {
+          for (let j = i - groupSize + 1; j <= i; j++) {
+            theaterSeats[row][j] = BOOKED_SEAT;
+          }
+          showFeedback(`Successfully booked ${groupSize} seats in Row ${row + 1}.`);
+          displaySeats(theaterSeats);
+          return;
+        }
+      }
+      showFeedback(`Not enough consecutive seats in Row ${row + 1}.`);
+    });
+
+    // Cancel a booked seat
+    document.getElementById('cancelSeatBtn').addEventListener('click', () => {
+      const row = parseInt(document.getElementById('cancelRow').value) - 1;
+      const col = parseInt(document.getElementById('cancelCol').value) - 1;
+      if (theaterSeats[row][col] === BOOKED_SEAT) {  // Check if seat is booked
+        theaterSeats[row][col] = EMPTY_SEAT;  // Mark seat as available
+        showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} has been canceled.`);
+      } else {
+        showFeedback(`Seat at Row ${row + 1}, Col ${col + 1} was not booked.`);
+      }
+      displaySeats(theaterSeats);  // Refresh the seating display
+    });
+
+    // Function to show feedback messages to the user
+    function showFeedback(message) {
+      const feedbackMsg = document.getElementById('feedbackMsg');
+      feedbackMsg.textContent = message;  // Display the message
+    }
+  </script>
+
+  <style>
+    .seat {
+      transition: background-color 0.3s;
+    }
+    .seat:hover {
+      background-color: #a3a3a3;
+    }
+  </style>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+  <div class="container mx-auto my-10 p-5 bg-white shadow-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center">Inventory Management</h1>
+
+    
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold">Add Product</h2>
+      <div class="flex space-x-4 mt-2">
+        <input id="productId" type="number" placeholder="Product ID" class="border p-2 rounded-lg w-24">
+        <input id="productName" type="text" placeholder="Product Name" class="border p-2 rounded-lg">
+        <input id="productQuantity" type="number" placeholder="Quantity" class="border p-2 rounded-lg w-24">
+        <input id="productPrice" type="number" placeholder="Price" class="border p-2 rounded-lg w-24">
+        <button id="addProductBtn" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">Add Product</button>
+      </div>
+    </div>
+
+    
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold">Update Product Quantity</h2>
+      <div class="flex space-x-4 mt-2">
+        <input id="updateProductId" type="number" placeholder="Product ID" class="border p-2 rounded-lg w-24">
+        <input id="newProductQuantity" type="number" placeholder="New Quantity" class="border p-2 rounded-lg w-24">
+        <button id="updateQuantityBtn" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Update Quantity</button>
+      </div>
+    </div>
+
+    
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold">Current Inventory</h2>
+      <div id="inventoryList" class="mt-4"></div>
+    </div>
+
+    
+    <button id="calculateValueBtn" class="bg-indigo-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-600">Calculate Total Inventory Value</button>
+    <div id="totalValue" class="mt-4 text-lg font-bold"></div>
+  </div>
+
+  <script>
+    let inventory = [];
+
+    const addProduct = (id, name, quantity, price) => {
+      let product = { id, name, quantity, price };
+      inventory.push(product);
+      console.log(`${name} added to inventory:`, product);
+      renderInventory();
+    };
+
+    const updateProductQuantity = (id, newQuantity) => {
+      let product = inventory.find(p => p.id === id);
+
+      if (product) {
+        product.quantity = newQuantity;
+        console.log(`Product ID: ${id} quantity updated to ${newQuantity}`);
+        renderInventory();
+      } else {
+        console.log(`Product with ID: ${id} not found.`);
+      }
+    };
+
+    const calculateTotalInventoryValue = () => {
+      let totalValue = inventory.reduce((sum, product) => sum + product.quantity * product.price, 0);
+      document.getElementById('totalValue').textContent = `Total Inventory Value: $${totalValue}`;
+    };
+
+    const renderInventory = () => {
+      const inventoryList = document.getElementById('inventoryList');
+      inventoryList.innerHTML = ''; 
+      inventory.forEach(product => {
+        const productItem = document.createElement('div');
+        productItem.classList.add('p-2', 'border', 'rounded-lg', 'mb-2', 'flex', 'justify-between');
+        productItem.innerHTML = `
+          <span>ID: ${product.id}, Name: ${product.name}</span>
+          <span>Quantity: ${product.quantity}, Price: $${product.price}</span>
+        `;
+        inventoryList.appendChild(productItem);
+      });
+    };
+
+    
+    document.getElementById('addProductBtn').addEventListener('click', () => {
+      const id = parseInt(document.getElementById('productId').value);
+      const name = document.getElementById('productName').value;
+      const quantity = parseInt(document.getElementById('productQuantity').value);
+      const price = parseFloat(document.getElementById('productPrice').value);
+
+      if (id && name && quantity && price) {
+        addProduct(id, name, quantity, price);
+      }
+    });
+
+    
+    document.getElementById('updateQuantityBtn').addEventListener('click', () => {
+      const id = parseInt(document.getElementById('updateProductId').value);
+      const newQuantity = parseInt(document.getElementById('newProductQuantity').value);
+
+      if (id && newQuantity) {
+        updateProductQuantity(id, newQuantity);
+      }
+    });
+
+    
+    document.getElementById('calculateValueBtn').addEventListener('click', calculateTotalInventoryValue);
+
+    
+    addProduct(1, 'Laptop', 10, 800);
+    addProduct(2, 'Phone', 20, 500);
+    addProduct(3, 'Tablet', 15, 300);
+    addProduct(4, 'Charger', 12, 800);
+  </script>
+</body>
+</html>
