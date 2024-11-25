@@ -1,0 +1,18 @@
+MODULE 3: Stacks and Queues
+1: Expression Evaluation (Infix to Postfix Conversion):
+Implement a calculator that converts infix expressions to postfix notation using stacks. Evaluate the postfix expression to return the result. Handle complex expressions with parentheses and operator precedence efficiently.
+
+2: Online Ticketing System (Priority Queue):
+Design an online ticketing system using a priority queue where VIP customers are served first. Regular customers are served based on their order of arrival. Simulate ticket booking, cancellation, and serve operations, ensuring the system works under heavy traffic conditions.
+
+3: Undo-Redo Functionality for a Code Editor:
+Create an undo-redo feature using two stacks to track changes made in a code editor. As the user performs actions (e.g., writing, deleting text), track each action and allow them to undo or redo changes.
+
+4: Job Queue System:
+Simulate a job processing system where jobs (like printing documents) are queued. Implement the queue with the ability to dynamically prioritize certain jobs (e.g., emergency print requests) using a priority queue.
+
+5: Stock Span Problem:
+Solve the Stock Span Problem using a stack, where for each day’s stock price, you calculate the number of consecutive days the price was less than or equal to today’s price.
+
+6: Bank ATM Queue Simulation:
+Implement a bank ATM queue where customers are queued for transactions. Simulate different types of transactions (deposit, withdrawal, balance check) with varying processing times. Use a deque (double-ended queue) to allow priority transactions at either end.
