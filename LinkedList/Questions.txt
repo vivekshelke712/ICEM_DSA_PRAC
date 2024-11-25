@@ -1,0 +1,11 @@
+1: Task Scheduler Simulation: Implement a priority-based task scheduler using a doubly linked list. Each task has a priority and duration. When new tasks are added, they should be inserted at the correct position based on priority. Simulate task execution and removal once completed.
+
+2: Train Route Simulation (Circular Linked List): Simulate a train system where each station is represented as a node in a circular linked list. The train moves around the stations in a loop. Add operations to dynamically insert new stations or remove old ones, with proper memory management.
+
+3: Real-Time Collaborative Editor: Build a version control system for a real-time collaborative text editor using a doubly linked list. Each edit is a node, allowing users to navigate forwards and backwards through changes. Include an undo/redo feature, tracking the position of multiple collaborators.
+
+4: Browser Tabs Management: Implement browser tab management where each open tab is a node in a singly linked list. Users can open new tabs, close specific ones, and switch between them. Optimize the solution for handling thousands of open tabs efficiently.
+
+5: Music Streaming Queue: Develop a dynamic playlist system where songs are represented as nodes in a circular doubly linked list. The user can queue songs, skip, replay, and move to the next song seamlessly. Ensure the playlist can handle thousands of songs with minimal memory overhead.
+
+6: Memory Block Allocation (Garbage Collection): Simulate dynamic memory block allocation and deallocation using a singly linked list, where each node represents a memory block. Implement garbage collection to identify and release unreferenced blocks periodically.

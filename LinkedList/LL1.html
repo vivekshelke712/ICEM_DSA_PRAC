@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Task Scheduler</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="max-w-md p-4 bg-white shadow-lg rounded">
+    <h2 class="text-xl font-bold mb-2">Task Scheduler</h2>
+    <form id="taskForm" class="mb-2">
+      <input id="name" placeholder="Task Name" class="w-full p-2 mb-2 border rounded" required>
+      <input id="priority" type="number" placeholder="Priority (1=High)" class="w-full p-2 mb-2 border rounded" required min="1">
+      <input id="duration" type="number" placeholder="Duration (sec)" class="w-full p-2 mb-2 border rounded" required min="1">
+      <button class="w-full bg-blue-500 text-white py-2 rounded">Add Task</button>
+    </form>
+    <ul id="taskList" class="text-sm"></ul>
+  </div>
+
+  <script>
+    // Node class represents a single task
+    class Node {
+      constructor(task) {
+        this.task = task; // Stores the task information
+        this.next = null; // Points to the next task in the list
+      }
+    }
+
+    // LinkedList class to manage tasks in order of priority
+    class LinkedList {
+      constructor() {
+        this.head = null; // Starting point of the list
+      }
+
+      // Insert tasks by priority
+      insertByPriority(task) {
+        const newNode = new Node(task);
+        // Insert at the head if the list is empty or if the new task has higher priority
+        if (!this.head || this.head.task.priority > task.priority) {
+          newNode.next = this.head;
+          this.head = newNode;
+        } else {
+          let current = this.head;
+          // Traverse the list and find the correct position based on priority
+          while (current.next && current.next.task.priority <= task.priority) {
+            current = current.next;
+          }
+          newNode.next = current.next;
+          current.next = newNode;
+        }
+      }
+
+      // Remove the first task (head) after it's executed
+      removeHead() {
+        if (this.head) this.head = this.head.next;
+      }
+
+      // Get an array of tasks for display
+      getTasks() {
+        let tasks = [];
+        let current = this.head;
+        while (current) {
+          tasks.push(current.task);
+          current = current.next;
+        }
+        return tasks;
+      }
+    }
+
+    // TaskScheduler class to handle adding and executing tasks
+    class TaskScheduler {
+      constructor() {
+        this.tasks = new LinkedList(); // Initialize with an empty linked list
+      }
+
+      // Add task with a name, priority, and duration
+      addTask(name, priority, duration) {
+        this.tasks.insertByPriority({ name, priority, duration });
+        this.renderTasks();
+      }
+
+      // Execute tasks one by one based on duration
+      async executeTasks() {
+        while (this.tasks.head) {
+          const task = this.tasks.head.task;
+          alert(`Executing Task: ${task.name} (Priority: ${task.priority}, Duration: ${task.duration}s)`);
+          await new Promise(r => setTimeout(r, task.duration * 1000)); // Wait for task duration
+          this.tasks.removeHead(); // Remove the completed task
+          this.renderTasks(); // Update the task list
+        }
+      }
+
+      // Render the task list in HTML
+      renderTasks() {
+        const list = document.getElementById("taskList");
+        list.innerHTML = this.tasks.getTasks()
+          .map(t => `<li>${t.name} (Priority: ${t.priority}, Duration: ${t.duration}s)</li>`)
+          .join("");
+      }
+    }
+
+    // Instantiate TaskScheduler
+    const scheduler = new TaskScheduler();
+
+    // Form submission handler to add tasks
+    document.getElementById("taskForm").onsubmit = (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const priority = parseInt(document.getElementById("priority").value);
+      const duration = parseInt(document.getElementById("duration").value);
+      scheduler.addTask(name, priority, duration);
+      e.target.reset();
+      if (!scheduler.isExecuting) {
+        scheduler.isExecuting = true;
+        scheduler.executeTasks().finally(() => scheduler.isExecuting = false);
+      }
+    };
+  </script>
+</body>
+</html>

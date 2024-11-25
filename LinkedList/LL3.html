@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Collaborative Text Editor</title>
+  <!-- Adding Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-gray-100 min-h-screen flex justify-center items-center">
+
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-xl">
+    <!-- Buttons for Undo and Redo -->
+    <div class="flex justify-between mb-4">
+      <button id="undo" class="px-4 py-2 bg-blue-500 text-white rounded" disabled>Undo</button>
+      <button id="redo" class="px-4 py-2 bg-blue-500 text-white rounded" disabled>Redo</button>
+    </div>
+
+    <!-- Text Area where user can type -->
+    <textarea id="textArea" class="w-full h-64 p-4 border border-gray-300 rounded-lg" placeholder="Start typing..."></textarea>
+
+    <!-- Display the current number of undo actions available -->
+    <div class="mt-4 text-sm text-gray-500" id="status">
+      Undo History: 1
+    </div>
+  </div>
+
+  <script>
+    // Class to represent each change made to the text (edit)
+    class Edit {
+      constructor(content) {
+        this.content = content;  // The text at this point
+        this.prev = null;        // Previous change
+        this.next = null;        // Next change
+      }
+    }
+
+    // Main editor class that manages the text, undo, redo
+    class TextEditor {
+      constructor() {
+        this.head = null;   // The first change (start)
+        this.tail = null;   // The last change
+        this.current = null; // Current change (where we are now)
+        this.undoStack = []; // Stack to keep track of undone changes
+        this.redoStack = []; // Stack to keep track of redone changes
+
+        // Grab the HTML elements
+        this.textArea = document.getElementById("textArea");
+        this.undoButton = document.getElementById("undo");
+        this.redoButton = document.getElementById("redo");
+        this.status = document.getElementById("status");
+
+        // Create the first empty change when the editor loads
+        this.createFirstNode();
+
+        // Event listeners for changes in the text area
+        this.textArea.addEventListener("input", this.onInput.bind(this));
+        this.undoButton.addEventListener("click", this.undo.bind(this));
+        this.redoButton.addEventListener("click", this.redo.bind(this));
+      }
+
+      // Initialize the editor with the first empty edit
+      createFirstNode() {
+        const firstEdit = new Edit("");  // The first empty text
+        this.head = firstEdit;           // Set as head of changes
+        this.tail = firstEdit;           // Also set as tail of changes
+        this.current = firstEdit;        // We start at the first edit
+        this.updateEditor();             // Update the text area
+      }
+
+      // Handle input changes by the user
+      onInput() {
+        const newText = this.textArea.value; // Get the current text
+
+        // Only create a new change if the text is different
+        if (this.current.content !== newText) {
+          const newEdit = new Edit(newText); // Create a new edit node
+          if (this.current) {
+            this.current.next = newEdit;  // Link the new edit to the current one
+            newEdit.prev = this.current;  // Link the current edit to the new one
+            this.tail = newEdit;          // Update the tail to the new edit
+          }
+          this.current = newEdit;          // Set the current edit to the new one
+
+          // Reset redo stack because we made a new change
+          this.redoStack = [];
+
+          // Add this edit to the undo stack
+          this.undoStack.push(this.current);
+
+          // Update the buttons
+          this.updateUndoRedoButtons();
+        }
+      }
+
+      // Undo the last change (go back to the previous edit)
+      undo() {
+        if (this.undoStack.length > 1) {
+          this.redoStack.push(this.current); // Push the current edit to redo stack
+          this.undoStack.pop();              // Remove the last edit from undo stack
+          this.current = this.undoStack[this.undoStack.length - 1]; // Set to the previous edit
+          this.updateEditor();               // Update the editor with the previous text
+          this.updateUndoRedoButtons();      // Update button states
+        }
+      }
+
+      // Redo the last undone change (go forward to the next edit)
+      redo() {
+        if (this.redoStack.length > 0) {
+          this.undoStack.push(this.current);  // Push the current edit to undo stack
+          this.current = this.redoStack.pop(); // Get the last undone edit
+          this.updateEditor();                // Update the editor with the redo text
+          this.updateUndoRedoButtons();       // Update button states
+        }
+      }
+
+      // Update the text area with the current edit
+      updateEditor() {
+        this.textArea.value = this.current.content; // Display the current text
+        this.status.textContent = `Undo History: ${this.undoStack.length}`; // Show undo history count
+      }
+
+      // Enable/disable the undo and redo buttons based on available actions
+      updateUndoRedoButtons() {
+        this.undoButton.disabled = this.undoStack.length <= 1; // Disable undo if there's no history
+        this.redoButton.disabled = this.redoStack.length === 0; // Disable redo if there's nothing to redo
+      }
+    }
+
+    // Initialize the text editor when the page loads
+    window.onload = () => {
+      const editor = new TextEditor();
+    };
+  </script>
+
+</body>
+</html>

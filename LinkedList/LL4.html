@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Tabs Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="font-sans bg-gray-100 min-h-screen flex flex-col items-center">
+
+  <div class="w-full max-w-4xl p-6 bg-white rounded-lg shadow-lg mt-10">
+    <h1 class="text-2xl font-bold mb-4">Browser Tabs Management</h1>
+
+    <!-- Tab Navigation -->
+    <div id="tabNavigation" class="flex mb-4">
+      <!-- Dynamic Tab Buttons will go here -->
+    </div>
+
+    <!-- Active Tab Content -->
+    <div id="tabContent" class="p-6 border border-gray-300 rounded-md bg-gray-50">
+      <h2 class="text-xl font-semibold">Welcome to a New Tab</h2>
+      <p class="mt-2">Content of the active tab will be displayed here.</p>
+    </div>
+
+    <!-- Controls for Adding and Closing Tabs -->
+    <div class="mt-6 flex gap-4">
+      <button id="openTab" class="px-4 py-2 bg-blue-500 text-white rounded">Open New Tab</button>
+      <button id="closeTab" class="px-4 py-2 bg-red-500 text-white rounded">Close Current Tab</button>
+    </div>
+  </div>
+
+  <script>
+    // Tab class to represent a single tab
+    class Tab {
+      constructor(title, content) {
+        this.title = title;
+        this.content = content;
+        this.next = null;
+      }
+    }
+
+    // TabManager class to handle the linked list of tabs
+    class TabManager {
+      constructor() {
+        this.head = null;  // First tab in the list
+        this.tail = null;  // Last tab in the list
+        this.currentTab = null; // The currently active tab
+        this.tabNavigation = document.getElementById("tabNavigation");
+        this.tabContent = document.getElementById("tabContent");
+        this.openTabButton = document.getElementById("openTab");
+        this.closeTabButton = document.getElementById("closeTab");
+
+        // Initialize the tab manager
+        this.openTabButton.addEventListener("click", () => this.openNewTab());
+        this.closeTabButton.addEventListener("click", () => this.closeCurrentTab());
+      }
+
+      // Method to open a new tab
+      openNewTab() {
+        const newTab = new Tab(`Tab ${this.getTabCount() + 1}`, `Content of Tab ${this.getTabCount() + 1}`);
+
+        if (!this.head) {
+          this.head = newTab;
+          this.tail = newTab;
+          this.currentTab = newTab;
+        } else {
+          this.tail.next = newTab;
+          this.tail = newTab;
+        }
+
+        this.updateTabNavigation();
+      }
+
+      // Method to close the current tab
+      closeCurrentTab() {
+        if (!this.currentTab) return;
+
+        if (this.head === this.currentTab) {
+          this.head = this.currentTab.next;
+          this.currentTab = this.head;
+          if (!this.head) {
+            this.tail = null;
+          }
+        } else {
+          let prevTab = this.head;
+          while (prevTab.next !== this.currentTab) {
+            prevTab = prevTab.next;
+          }
+          prevTab.next = this.currentTab.next;
+          if (this.currentTab === this.tail) {
+            this.tail = prevTab;
+          }
+          this.currentTab = prevTab.next;
+        }
+
+        this.updateTabNavigation();
+      }
+
+      // Method to switch to a specific tab
+      switchToTab(tab) {
+        this.currentTab = tab;
+        this.updateTabContent();
+      }
+
+      // Method to update the tab navigation (buttons)
+      updateTabNavigation() {
+        this.tabNavigation.innerHTML = "";
+
+        let currentTab = this.head;
+        while (currentTab) {
+          const tabButton = document.createElement("button");
+          tabButton.textContent = currentTab.title;
+          tabButton.classList.add("px-4", "py-2", "mx-2", "bg-gray-200", "rounded", "hover:bg-gray-300");
+          tabButton.addEventListener("click", () => this.switchToTab(currentTab));
+
+          this.tabNavigation.appendChild(tabButton);
+          currentTab = currentTab.next;
+        }
+
+        this.updateTabContent();
+      }
+
+      // Method to update the content of the active tab
+      updateTabContent() {
+        if (!this.currentTab) {
+          this.tabContent.innerHTML = "<h2 class='text-xl font-semibold'>No Active Tab</h2>";
+        } else {
+          this.tabContent.innerHTML = `
+            <h2 class="text-xl font-semibold">${this.currentTab.title}</h2>
+            <p class="mt-2">${this.currentTab.content}</p>
+          `;
+        }
+      }
+
+     
+      getTabCount() {
+        let count = 0;
+        let currentTab = this.head;
+        while (currentTab) {
+          count++;
+          currentTab = currentTab.next;
+        }
+        return count;
+      }
+    }
+    
+    const tabManager = new TabManager();
+  </script>
+
+</body>
+</html>

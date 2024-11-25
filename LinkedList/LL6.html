@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Block Allocation (Garbage Collection)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans flex justify-center items-center min-h-screen">
+
+  <div class="w-96 bg-gray-800 rounded-lg p-6">
+    <h1 class="text-3xl font-bold text-center mb-4">Memory Block Allocation</h1>
+
+    <div>
+      <label for="blockSize" class="text-xl">Block Size:</label>
+      <input id="blockSize" type="number" class="w-full px-4 py-2 text-black rounded-md mb-4" placeholder="Enter block size">
+      <button id="allocateMemory" class="w-full bg-blue-500 py-2 text-white rounded-md hover:bg-blue-700 mb-4">Allocate Memory</button>
+    </div>
+
+    <button id="deallocateMemory" class="w-full bg-red-500 py-2 text-white rounded-md hover:bg-red-700 mb-4">Deallocate Last Block</button>
+
+    <h3 class="text-lg mt-6">Memory Blocks</h3>
+    <ul id="memoryBlocks" class="text-gray-300 list-disc pl-4">
+      <!-- List of allocated memory blocks will appear here -->
+    </ul>
+
+    <button id="garbageCollect" class="w-full bg-yellow-500 py-2 text-white rounded-md hover:bg-yellow-700 mt-4">Run Garbage Collection</button>
+
+  </div>
+
+  <script>
+    // Simulating a Memory Block (Node in a Singly Linked List)
+    class MemoryBlock {
+      constructor(size) {
+        this.size = size;
+        this.next = null;  // Pointer to the next memory block
+        this.used = false; // Flag to mark if block is used or free
+      }
+    }
+
+    // Simulating a Memory Manager (Linked List of Memory Blocks)
+    class MemoryManager {
+      constructor() {
+        this.head = null;  // Head of the linked list (first memory block)
+        this.tail = null;  // Tail of the linked list (last memory block)
+      }
+
+      // Allocate a new memory block
+      allocateMemory(size) {
+        const newBlock = new MemoryBlock(size);
+        if (this.head === null) {
+          this.head = newBlock;
+          this.tail = newBlock;
+        } else {
+          this.tail.next = newBlock;
+          this.tail = newBlock;
+        }
+      }
+
+      // Deallocate the last memory block
+      deallocateMemory() {
+        if (this.head === null) return;
+
+        if (this.head === this.tail) {
+          this.head = this.tail = null; // No memory blocks left
+        } else {
+          let current = this.head;
+          while (current.next !== this.tail) {
+            current = current.next;
+          }
+          current.next = null; // Remove the last block
+          this.tail = current;  // Update tail
+        }
+      }
+
+      // Simulate Garbage Collection by releasing unused memory blocks
+      garbageCollect() {
+        let current = this.head;
+        let prev = null;
+
+        while (current !== null) {
+          if (!current.used) {
+            // Block is not used, so deallocate it
+            if (prev === null) {
+              this.head = current.next; // Remove from head
+            } else {
+              prev.next = current.next; // Remove from middle or end
+            }
+          } else {
+            // Mark the block as unused after collection
+            current.used = false;
+            prev = current;
+          }
+          current = current.next;
+        }
+      }
+
+      // Display the current memory blocks
+      displayBlocks() {
+        const blocksElement = document.getElementById("memoryBlocks");
+        blocksElement.innerHTML = '';
+
+        let current = this.head;
+        while (current !== null) {
+          const listItem = document.createElement("li");
+          listItem.textContent = `Size: ${current.size} MB, Used: ${current.used ? "Yes" : "No"}`;
+          blocksElement.appendChild(listItem);
+          current = current.next;
+        }
+      }
+    }
+
+    // Initialize Memory Manager
+    const memoryManager = new MemoryManager();
+
+    // HTML elements
+    const allocateButton = document.getElementById("allocateMemory");
+    const deallocateButton = document.getElementById("deallocateMemory");
+    const garbageCollectButton = document.getElementById("garbageCollect");
+    const blockSizeInput = document.getElementById("blockSize");
+
+    // Event listener for allocating memory
+    allocateButton.addEventListener("click", () => {
+      const blockSize = parseInt(blockSizeInput.value);
+      if (isNaN(blockSize) || blockSize <= 0) {
+        alert("Please enter a valid block size.");
+        return;
+      }
+
+      memoryManager.allocateMemory(blockSize);
+      memoryManager.displayBlocks();
+      blockSizeInput.value = ""; // Clear the input
+    });
+
+    // Event listener for deallocating the last memory block
+    deallocateButton.addEventListener("click", () => {
+      memoryManager.deallocateMemory();
+      memoryManager.displayBlocks();
+    });
+
+    // Event listener for running garbage collection
+    garbageCollectButton.addEventListener("click", () => {
+      memoryManager.garbageCollect();
+      memoryManager.displayBlocks();
+    });
+
+  </script>
+
+</body>
+</html>

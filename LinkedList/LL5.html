@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Streaming Queue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white font-sans flex justify-center items-center min-h-screen">
+
+  <div class="w-96 bg-gray-800 rounded-lg p-6">
+    <h1 class="text-3xl font-bold text-center mb-4">Music Streaming Queue</h1>
+
+    <div class="mb-4">
+      <h2 class="text-xl font-semibold">Now Playing</h2>
+      <div id="nowPlaying" class="text-center text-lg text-gray-300">No song playing</div>
+    </div>
+
+    <div class="flex justify-around">
+      <button id="previous" class="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-700">Previous</button>
+      <button id="skip" class="px-4 py-2 bg-green-500 rounded-md hover:bg-green-700">Next</button>
+      <button id="replay" class="px-4 py-2 bg-red-500 rounded-md hover:bg-red-700">Replay</button>
+    </div>
+
+    <div class="mt-6">
+      <input id="songInput" type="text" placeholder="Add song title" class="w-full px-4 py-2 text-black rounded-md mb-4">
+      <button id="addSong" class="w-full bg-purple-500 py-2 text-white rounded-md hover:bg-purple-700">Add Song</button>
+    </div>
+
+    <h3 class="text-lg mt-6">Playlist</h3>
+    <ul id="playlist" class="text-gray-300 list-disc pl-4">
+      <!-- Playlist will appear here -->
+    </ul>
+  </div>
+
+  <script>
+    // Node class to represent a song in the playlist
+    class SongNode {
+      constructor(title) {
+        this.title = title;
+        this.next = null;
+        this.prev = null;
+      }
+    }
+
+    // Playlist class to manage the circular doubly linked list of songs
+    class Playlist {
+      constructor() {
+        this.head = null;  // The first song in the playlist
+        this.tail = null;  // The last song in the playlist
+        this.currentSong = null; // The currently playing song
+        this.songCount = 0;  // To track the number of songs
+      }
+
+      // Method to add a new song to the playlist
+      addSong(title) {
+        const newSong = new SongNode(title);
+        if (!this.head) {
+          this.head = newSong;
+          this.tail = newSong;
+          newSong.next = newSong;  // Circular reference
+          newSong.prev = newSong;  // Circular reference
+        } else {
+          newSong.prev = this.tail;
+          newSong.next = this.head;
+          this.tail.next = newSong;
+          this.head.prev = newSong;
+          this.tail = newSong;
+        }
+        this.songCount++;
+        if (this.songCount === 1) {
+          this.currentSong = newSong; // Set the first song as the current song
+        }
+      }
+
+      // Method to move to the next song in the playlist
+      nextSong() {
+        if (this.currentSong) {
+          this.currentSong = this.currentSong.next;
+          return this.currentSong;
+        }
+        return null;
+      }
+
+      // Method to move to the previous song in the playlist
+      previousSong() {
+        if (this.currentSong) {
+          this.currentSong = this.currentSong.prev;
+          return this.currentSong;
+        }
+        return null;
+      }
+
+      // Method to replay the current song
+      replaySong() {
+        return this.currentSong;
+      }
+
+      // Method to get all the songs in the playlist as an array for display
+      getPlaylist() {
+        const songs = [];
+        if (this.head) {
+          let current = this.head;
+          do {
+            songs.push(current.title);
+            current = current.next;
+          } while (current !== this.head);
+        }
+        return songs;
+      }
+
+      // Method to get the title of the current song
+      getCurrentSongTitle() {
+        return this.currentSong ? this.currentSong.title : "No song playing";
+      }
+    }
+
+    // Initialize the playlist
+    const playlist = new Playlist();
+    const nowPlaying = document.getElementById("nowPlaying");
+    const playlistElement = document.getElementById("playlist");
+    const addSongButton = document.getElementById("addSong");
+    const songInput = document.getElementById("songInput");
+    const previousButton = document.getElementById("previous");
+    const skipButton = document.getElementById("skip");
+    const replayButton = document.getElementById("replay");
+
+    // Update the displayed playlist
+    function updatePlaylistDisplay() {
+      const songs = playlist.getPlaylist();
+      playlistElement.innerHTML = songs.map(song => `<li>${song}</li>`).join('');
+      nowPlaying.textContent = playlist.getCurrentSongTitle();
+    }
+
+    // Event listener for adding a song
+    addSongButton.addEventListener("click", () => {
+      const songTitle = songInput.value.trim();
+      if (songTitle) {
+        playlist.addSong(songTitle);
+        updatePlaylistDisplay();
+        songInput.value = ""; // Clear input field
+      }
+    });
+
+    // Event listener for skipping to the next song
+    skipButton.addEventListener("click", () => {
+      const next = playlist.nextSong();
+      nowPlaying.textContent = next ? next.title : "No song playing";
+      updatePlaylistDisplay();
+    });
+
+    // Event listener for going to the previous song
+    previousButton.addEventListener("click", () => {
+      const prev = playlist.previousSong();
+      nowPlaying.textContent = prev ? prev.title : "No song playing";
+      updatePlaylistDisplay();
+    });
+
+    // Event listener for replaying the current song
+    replayButton.addEventListener("click", () => {
+      const replay = playlist.replaySong();
+      nowPlaying.textContent = replay ? replay.title : "No song playing";
+      updatePlaylistDisplay();
+    });
+  </script>
+
+</body>
+</html>
