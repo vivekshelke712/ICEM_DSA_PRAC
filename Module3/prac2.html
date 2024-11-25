@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Ticketing System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+    <h1 class="text-2xl font-bold text-center mb-4">Online Ticketing System</h1>
+    
+    <!-- Add Ticket -->
+    <form id="ticket-form" class="mb-4">
+      <div class="mb-4">
+        <label for="name" class="block text-gray-700 font-medium">Customer Name:</label>
+        <input
+          type="text"
+          id="name"
+          class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter name"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label for="priority" class="block text-gray-700 font-medium">Customer Type:</label>
+        <select
+          id="priority"
+          class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="VIP">VIP</option>
+          <option value="Regular">Regular</option>
+        </select>
+      </div>
+      <button
+        type="button"
+        id="add-ticket"
+        class="bg-green-500 text-white py-2 px-4 rounded-lg w-full hover:bg-green-600"
+      >
+        Book Ticket
+      </button>
+    </form>
+
+    <!-- Ticket Operations -->
+    <div class="mb-4">
+      <button
+        id="serve-ticket"
+        class="bg-blue-500 text-white py-2 px-4 rounded-lg w-full hover:bg-blue-600"
+      >
+        Serve Next Customer
+      </button>
+    </div>
+    <div class="mb-4">
+      <button
+        id="cancel-ticket"
+        class="bg-red-500 text-white py-2 px-4 rounded-lg w-full hover:bg-red-600"
+      >
+        Cancel Next Customer
+      </button>
+    </div>
+
+    <!-- Ticket Queue Display -->
+    <div class="mt-4">
+      <h2 class="text-lg font-medium text-gray-700">Current Queue:</h2>
+      <ul id="queue-list" class="mt-2 bg-gray-100 p-4 rounded-lg border border-gray-300"></ul>
+    </div>
+  </div>
+
+  <script>
+    class PriorityQueue {
+      constructor() {
+        this.queue = [];
+      }
+
+      // Add a customer to the queue
+      enqueue(name, priority) {
+        const customer = { name, priority };
+        if (this.queue.length === 0) {
+          this.queue.push(customer);
+        } else {
+          let added = false;
+          for (let i = 0; i < this.queue.length; i++) {
+            if (priority === "VIP" && this.queue[i].priority !== "VIP") {
+              this.queue.splice(i, 0, customer);
+              added = true;
+              break;
+            }
+          }
+          if (!added) this.queue.push(customer);
+        }
+      }
+
+      // Serve the next customer
+      dequeue() {
+        return this.queue.shift();
+      }
+
+      // Cancel the next customer
+      cancel() {
+        return this.queue.shift();
+      }
+
+      // Get the queue
+      getQueue() {
+        return this.queue;
+      }
+    }
+
+    const ticketQueue = new PriorityQueue();
+
+    // Add ticket functionality
+    document.getElementById("add-ticket").addEventListener("click", () => {
+      const name = document.getElementById("name").value.trim();
+      const priority = document.getElementById("priority").value;
+
+      if (name) {
+        ticketQueue.enqueue(name, priority);
+        updateQueueDisplay();
+        document.getElementById("name").value = ""; // Clear the input
+      }
+    });
+
+    // Serve ticket functionality
+    document.getElementById("serve-ticket").addEventListener("click", () => {
+      const served = ticketQueue.dequeue();
+      alert(served ? `Served: ${served.name} (${served.priority})` : "No customers in queue!");
+      updateQueueDisplay();
+    });
+
+    // Cancel ticket functionality
+    document.getElementById("cancel-ticket").addEventListener("click", () => {
+      const canceled = ticketQueue.cancel();
+      alert(canceled ? `Canceled: ${canceled.name} (${canceled.priority})` : "No customers in queue!");
+      updateQueueDisplay();
+    });
+
+    // Update queue display
+    function updateQueueDisplay() {
+      const queueList = document.getElementById("queue-list");
+      queueList.innerHTML = ""; // Clear current list
+      ticketQueue.getQueue().forEach((customer, index) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `${index + 1}. ${customer.name} (${customer.priority})`;
+        listItem.className = "p-2 border-b border-gray-300";
+        queueList.appendChild(listItem);
+      });
+    }
+  </script>
+</body>
+</html>

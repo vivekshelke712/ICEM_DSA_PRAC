@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Queue System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">Job Queue System</h1>
+        
+        <div class="flex space-x-4 mb-6">
+            <input id="jobName" type="text" class="border border-gray-300 rounded p-2 w-1/2" placeholder="Enter job name">
+            <input id="jobPriority" type="number" class="border border-gray-300 rounded p-2 w-1/4" placeholder="Priority (1-10)">
+            <button onclick="addJob()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add Job</button>
+        </div>
+
+        <div class="mb-4">
+            <button onclick="processJob()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Process Next Job</button>
+        </div>
+
+        <h2 class="text-xl font-semibold">Job Queue</h2>
+        <ul id="jobList" class="space-y-2 mt-4">
+            <!-- Job list will be dynamically populated here -->
+        </ul>
+
+        <h2 class="text-xl font-semibold mt-6">Processing Log</h2>
+        <ul id="processingLog" class="space-y-2 mt-4">
+            <!-- Processed jobs will be logged here -->
+        </ul>
+    </div>
+
+    <script>
+        // Priority Queue Class
+        class JobQueue {
+            constructor() {
+                this.jobs = [];
+            }
+
+            addJob(job) {
+                this.jobs.push(job);
+                this.jobs.sort((a, b) => b.priority - a.priority); // Sort jobs by priority (higher first)
+            }
+
+            processJob() {
+                return this.jobs.shift(); // Remove and return the highest priority job
+            }
+
+            getJobs() {
+                return this.jobs;
+            }
+        }
+
+        const jobQueue = new JobQueue();
+
+        function addJob() {
+            const jobName = document.getElementById("jobName").value;
+            const jobPriority = parseInt(document.getElementById("jobPriority").value);
+
+            if (jobName && jobPriority) {
+                const newJob = { name: jobName, priority: jobPriority };
+                jobQueue.addJob(newJob);
+
+                // Clear inputs
+                document.getElementById("jobName").value = "";
+                document.getElementById("jobPriority").value = "";
+
+                updateJobList();
+            } else {
+                alert("Please enter both job name and priority.");
+            }
+        }
+
+        function processJob() {
+            const job = jobQueue.processJob();
+            if (job) {
+                const processingLog = document.getElementById("processingLog");
+                const logItem = document.createElement("li");
+                logItem.textContent = `Processing: ${job.name} (Priority: ${job.priority})`;
+                logItem.classList.add("bg-green-100", "p-2", "rounded", "text-gray-700");
+                processingLog.appendChild(logItem);
+                updateJobList();
+            } else {
+                alert("No jobs in the queue.");
+            }
+        }
+
+        function updateJobList() {
+            const jobList = document.getElementById("jobList");
+            jobList.innerHTML = ""; // Clear current job list
+
+            const jobs = jobQueue.getJobs();
+            jobs.forEach(job => {
+                const jobItem = document.createElement("li");
+                jobItem.textContent = `${job.name} (Priority: ${job.priority})`;
+                jobItem.classList.add("bg-blue-100", "p-2", "rounded", "text-gray-700");
+                jobList.appendChild(jobItem);
+            });
+        }
+    </script>
+</body>
+</html>

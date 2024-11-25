@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undo-Redo Code Editor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-xl">
+    <h1 class="text-2xl font-bold text-center mb-6">Code Editor: Undo-Redo</h1>
+
+    <!-- Code Editor -->
+    <textarea
+      id="code-editor"
+      class="w-full h-48 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      placeholder="Start typing your code here..."
+    ></textarea>
+
+    <!-- Buttons -->
+    <div class="flex gap-4 mt-4">
+      <button
+        id="undo-btn"
+        class="bg-blue-500 text-white py-2 px-4 rounded-lg w-full hover:bg-blue-600"
+      >
+        Undo
+      </button>
+      <button
+        id="redo-btn"
+        class="bg-green-500 text-white py-2 px-4 rounded-lg w-full hover:bg-green-600"
+      >
+        Redo
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Two stacks for undo-redo functionality
+    const undoStack = [];
+    const redoStack = [];
+
+    const editor = document.getElementById("code-editor");
+    const undoBtn = document.getElementById("undo-btn");
+    const redoBtn = document.getElementById("redo-btn");
+
+    // Save the current state whenever the user types
+    editor.addEventListener("input", () => {
+      undoStack.push(editor.value); // Save the current state to the undo stack
+      redoStack.length = 0; // Clear redo stack after a new change
+    });
+
+    // Undo functionality
+    undoBtn.addEventListener("click", () => {
+      if (undoStack.length > 0) {
+        redoStack.push(undoStack.pop()); // Move the current state to the redo stack
+        editor.value = undoStack.length > 0 ? undoStack[undoStack.length - 1] : ""; // Restore the previous state
+      } else {
+        alert("No more actions to undo!");
+      }
+    });
+
+    // Redo functionality
+    redoBtn.addEventListener("click", () => {
+      if (redoStack.length > 0) {
+        const redoState = redoStack.pop(); // Retrieve the last state from the redo stack
+        undoStack.push(redoState); // Push it back to the undo stack
+        editor.value = redoState; // Apply the state
+      } else {
+        alert("No more actions to redo!");
+      }
+    });
+  </script>
+</body>
+</html>
