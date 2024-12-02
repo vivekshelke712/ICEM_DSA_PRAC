@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank ATM Queue Simulation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-center text-gray-700 mb-4">Bank ATM Queue Simulation</h1>
+    
+    <!-- Transaction Form -->
+    <form id="transactionForm" class="space-y-4">
+      <div>
+        <label for="customerName" class="block text-sm font-medium text-gray-600">Customer Name</label>
+        <input 
+          type="text" 
+          id="customerName" 
+          class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+          placeholder="Enter customer name" 
+          required>
+      </div>
+
+      <div>
+        <label for="transactionType" class="block text-sm font-medium text-gray-600">Transaction Type</label>
+        <select 
+          id="transactionType" 
+          class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+          required>
+          <option value="deposit">Deposit</option>
+          <option value="withdrawal">Withdrawal</option>
+          <option value="balance">Balance Check</option>
+        </select>
+      </div>
+
+      <div>
+        <button 
+          type="submit" 
+          class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+          Add to Queue
+        </button>
+      </div>
+    </form>
+
+    <!-- Queue Display -->
+    <div id="queueDisplay" class="mt-6">
+      <h2 class="text-lg font-semibold text-gray-800">Queue:</h2>
+      <ul id="queueList" class="mt-2 list-disc list-inside text-gray-700">
+        <!-- Queue items will appear here -->
+      </ul>
+    </div>
+
+    <!-- Process Queue -->
+    <div class="mt-6">
+      <button 
+        id="processQueue" 
+        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+        Process Next Customer
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ATM Queue using a Deque
+    class Deque {
+      constructor() {
+        this.queue = [];
+      }
+
+      addFront(customer) {
+        this.queue.unshift(customer);
+      }
+
+      addRear(customer) {
+        this.queue.push(customer);
+      }
+
+      removeFront() {
+        return this.queue.shift();
+      }
+
+      isEmpty() {
+        return this.queue.length === 0;
+      }
+
+      displayQueue() {
+        return this.queue.map(customer => `${customer.name} (${customer.type})`);
+      }
+    }
+
+    const atmQueue = new Deque();
+
+    // DOM Elements
+    const transactionForm = document.getElementById('transactionForm');
+    const queueList = document.getElementById('queueList');
+    const processQueue = document.getElementById('processQueue');
+
+    // Helper: Update Queue Display
+    function updateQueueDisplay() {
+      queueList.innerHTML = '';
+      const queueItems = atmQueue.displayQueue();
+      if (queueItems.length === 0) {
+        queueList.innerHTML = '<li class="text-gray-500">The queue is empty.</li>';
+      } else {
+        queueItems.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          queueList.appendChild(li);
+        });
+      }
+    }
+
+    // Add Customer to Queue
+    transactionForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const customerName = document.getElementById('customerName').value.trim();
+      const transactionType = document.getElementById('transactionType').value;
+
+      // Priority logic: Balance check gets priority (added to the front)
+      if (transactionType === 'balance') {
+        atmQueue.addFront({ name: customerName, type: transactionType });
+      } else {
+        atmQueue.addRear({ name: customerName, type: transactionType });
+      }
+
+      updateQueueDisplay();
+      transactionForm.reset();
+    });
+
+    // Process Next Customer
+    processQueue.addEventListener('click', () => {
+      if (atmQueue.isEmpty()) {
+        alert('The queue is empty. No customers to process.');
+        return;
+      }
+
+      const nextCustomer = atmQueue.removeFront();
+      alert(`Processing ${nextCustomer.name} (${nextCustomer.type}).`);
+
+      // Simulate processing time
+      setTimeout(() => {
+        alert(`${nextCustomer.name}'s ${nextCustomer.type} transaction is complete.`);
+        updateQueueDisplay();
+      }, 2000);
+    });
+
+    // Initialize Queue Display
+    updateQueueDisplay();
+  </script>
+</body>
+</html>

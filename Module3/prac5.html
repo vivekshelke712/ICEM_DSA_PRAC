@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Span Problem</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold text-center text-gray-700 mb-4">Stock Span Calculator</h1>
+    
+    <div class="mb-4">
+      <label for="stockPrices" class="block text-sm font-medium text-gray-600 mb-2">
+        Enter Stock Prices (comma-separated):
+      </label>
+      <input 
+        type="text" 
+        id="stockPrices" 
+        class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+        placeholder="e.g., 100, 80, 60, 70, 60, 75, 85">
+    </div>
+    
+    <button 
+      id="calculateBtn" 
+      class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+      Calculate Stock Span
+    </button>
+    
+    <div id="output" class="mt-4 text-gray-700">
+      <!-- Result will be displayed here -->
+    </div>
+  </div>
+
+  <script>
+    // JavaScript Code for Stock Span Calculation
+    document.getElementById('calculateBtn').addEventListener('click', () => {
+      const input = document.getElementById('stockPrices').value;
+      const prices = input.split(',').map(num => parseInt(num.trim()));
+      if (prices.some(isNaN)) {
+        document.getElementById('output').innerHTML = `
+          <p class="text-red-500 font-medium">Please enter valid numbers separated by commas.</p>`;
+        return;
+      }
+
+      // Function to calculate stock span
+      function calculateStockSpan(prices) {
+        const stack = [];
+        const spans = [];
+
+        for (let i = 0; i < prices.length; i++) {
+          // Pop elements from stack while stack is not empty and top of stack <= current price
+          while (stack.length > 0 && prices[stack[stack.length - 1]] <= prices[i]) {
+            stack.pop();
+          }
+
+          // If stack is empty, span is i+1; otherwise, span is i - stack top
+          spans.push(stack.length === 0 ? i + 1 : i - stack[stack.length - 1]);
+
+          // Push this index to the stack
+          stack.push(i);
+        }
+
+        return spans;
+      }
+
+      const result = calculateStockSpan(prices);
+
+      // Display the result
+      const resultHtml = `
+        <h2 class="text-lg font-semibold text-gray-800">Results:</h2>
+        <p class="mt-2">Input Prices: <span class="font-mono">${prices.join(', ')}</span></p>
+        <p class="mt-2">Stock Span: <span class="font-mono">${result.join(', ')}</span></p>
+      `;
+      document.getElementById('output').innerHTML = resultHtml;
+    });
+  </script>
+</body>
+</html>
