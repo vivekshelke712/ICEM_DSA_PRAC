@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Search Comparison</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
+    <h1 class="text-2xl font-bold text-center mb-4">Inventory Search System</h1>
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-1">Inventory Data (Comma Separated):</label>
+      <input id="inventory-input" type="text" class="block w-full border rounded-md p-2" value="10,20,30,40,50,60,70,80,90,100" />
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-1">Search for Item:</label>
+      <input id="search-item" type="number" class="block w-full border rounded-md p-2" placeholder="Enter item to search" />
+    </div>
+    <button id="search-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
+      Perform Search
+    </button>
+    <div id="results" class="mt-6 bg-gray-50 p-4 rounded-md">
+      <h2 class="text-lg font-bold mb-2">Results:</h2>
+      <ul class="list-disc list-inside text-gray-700" id="results-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Linear Search Implementation
+    function linearSearch(arr, target) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) return i;
+      }
+      return -1;
+    }
+
+    // Binary Search Implementation
+    function binarySearch(arr, target) {
+      let low = 0;
+      let high = arr.length - 1;
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        if (arr[mid] === target) return mid;
+        if (arr[mid] < target) low = mid + 1;
+        else high = mid - 1;
+      }
+      return -1;
+    }
+
+    // Interpolation Search Implementation
+    function interpolationSearch(arr, target) {
+      let low = 0;
+      let high = arr.length - 1;
+
+      while (low <= high && target >= arr[low] && target <= arr[high]) {
+        if (low === high) {
+          if (arr[low] === target) return low;
+          return -1;
+        }
+
+        // Calculate position using interpolation formula
+        const pos = low + Math.floor(
+          ((target - arr[low]) * (high - low)) / (arr[high] - arr[low])
+        );
+
+        if (arr[pos] === target) return pos;
+        if (arr[pos] < target) low = pos + 1;
+        else high = pos - 1;
+      }
+
+      return -1;
+    }
+
+    // Compare all algorithms
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const inventoryInput = document.getElementById('inventory-input').value;
+      const searchItem = parseInt(document.getElementById('search-item').value, 10);
+
+      if (!inventoryInput || isNaN(searchItem)) {
+        alert('Please provide valid inventory data and a search item.');
+        return;
+      }
+
+      // Parse and sort inventory data
+      const inventory = inventoryInput
+        .split(',')
+        .map(Number)
+        .filter(item => !isNaN(item))
+        .sort((a, b) => a - b);
+
+      const startLinear = performance.now();
+      const linearIndex = linearSearch(inventory, searchItem);
+      const timeLinear = performance.now() - startLinear;
+
+      const startBinary = performance.now();
+      const binaryIndex = binarySearch(inventory, searchItem);
+      const timeBinary = performance.now() - startBinary;
+
+      const startInterpolation = performance.now();
+      const interpolationIndex = interpolationSearch(inventory, searchItem);
+      const timeInterpolation = performance.now() - startInterpolation;
+
+      // Display Results
+      const resultsList = document.getElementById('results-list');
+      resultsList.innerHTML = `
+        <li>Linear Search: ${linearIndex !== -1 ? `Found at index ${linearIndex}` : 'Not Found'} (Time: ${timeLinear.toFixed(4)} ms)</li>
+        <li>Binary Search: ${binaryIndex !== -1 ? `Found at index ${binaryIndex}` : 'Not Found'} (Time: ${timeBinary.toFixed(4)} ms)</li>
+        <li>Interpolation Search: ${interpolationIndex !== -1 ? `Found at index ${interpolationIndex}` : 'Not Found'} (Time: ${timeInterpolation.toFixed(4)} ms)</li>
+      `;
+    });
+  </script>
+</body>
+</html>

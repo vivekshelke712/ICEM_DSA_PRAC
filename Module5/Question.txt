@@ -1,0 +1,10 @@
+Implement a binary search algorithm to search for products in a sorted product catalog. Compare its performance against linear search.
+Sort a large list of phone contacts using merge sort and compare the time complexity with quick sort when applied to smaller lists.
+Implement heap sort to rank participants in a large-scale competition based on their scores. Test your solution with large datasets.
+Design a hash table to store and retrieve employee records based on employee IDs. Implement different hash functions and collision handling techniques (chaining, open addressing).
+Solve the problem of searching for a specific element in a rotated sorted array using a modified binary search algorithm.
+Implement quick sort to arrange songs in a music library by different parameters (duration, artist, genre). Optimize the algorithm for large datasets.
+Implement an LRU (Least Recently Used) Cache system using a combination of hash maps and doubly linked lists to store frequently accessed data efficiently.
+Create a dictionary where words are stored using a hash table. Implement efficient lookup, insertion, and deletion operations using custom hash functions.
+Implement an interpolation search algorithm for finding items in an inventory management system where the data distribution is uniform. Compare its performance with binary and linear search algorithms.
+Design an algorithm to sort patient data based on emergency levels using heap sort. Ensure that the sorting happens in real-time for critical situations in an emergency room.

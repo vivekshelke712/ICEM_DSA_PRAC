@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LRU Cache Implementation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">LRU Cache Implementation</h1>
+    <div class="mb-4">
+      <label for="cache-capacity" class="block text-sm font-medium text-gray-700">Cache Capacity:</label>
+      <input type="number" id="cache-capacity" value="3" min="1" class="block w-full mt-1 p-2 border rounded-md bg-gray-50">
+    </div>
+    <div class="flex space-x-4 mb-4">
+      <button id="add-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add Key-Value</button>
+      <button id="get-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Get Key</button>
+      <button id="reset-btn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset Cache</button>
+    </div>
+    <div class="border p-4 bg-gray-50 rounded-md">
+      <h2 class="font-bold mb-2">Cache Contents:</h2>
+      <ul id="cache-display" class="list-disc list-inside text-gray-700">
+        <!-- Cache contents will be dynamically updated -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Node for Doubly Linked List
+    class Node {
+      constructor(key, value) {
+        this.key = key;
+        this.value = value;
+        this.prev = null;
+        this.next = null;
+      }
+    }
+
+    // LRU Cache Class
+    class LRUCache {
+      constructor(capacity) {
+        this.capacity = capacity;
+        this.map = new Map();
+        this.head = new Node(null, null); // Dummy head
+        this.tail = new Node(null, null); // Dummy tail
+        this.head.next = this.tail;
+        this.tail.prev = this.head;
+      }
+
+      // Add a new node to the front (most recently used)
+      addNode(node) {
+        node.next = this.head.next;
+        node.prev = this.head;
+        this.head.next.prev = node;
+        this.head.next = node;
+      }
+
+      // Remove a node
+      removeNode(node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+      }
+
+      // Move a node to the front (mark as recently used)
+      moveToFront(node) {
+        this.removeNode(node);
+        this.addNode(node);
+      }
+
+      // Remove the least recently used node
+      removeLRU() {
+        const lruNode = this.tail.prev;
+        this.removeNode(lruNode);
+        this.map.delete(lruNode.key);
+      }
+
+      // Get a value by key
+      get(key) {
+        if (!this.map.has(key)) {
+          alert(`Key "${key}" not found in cache.`);
+          return null;
+        }
+        const node = this.map.get(key);
+        this.moveToFront(node);
+        return node.value;
+      }
+
+      // Put a new key-value pair
+      put(key, value) {
+        if (this.map.has(key)) {
+          const node = this.map.get(key);
+          node.value = value;
+          this.moveToFront(node);
+        } else {
+          if (this.map.size === this.capacity) {
+            this.removeLRU();
+          }
+          const newNode = new Node(key, value);
+          this.map.set(key, newNode);
+          this.addNode(newNode);
+        }
+      }
+
+      // Get all cache data for display
+      getCacheContents() {
+        const contents = [];
+        let current = this.head.next;
+        while (current !== this.tail) {
+          contents.push({ key: current.key, value: current.value });
+          current = current.next;
+        }
+        return contents;
+      }
+
+      // Reset the cache
+      resetCache() {
+        this.map.clear();
+        this.head.next = this.tail;
+        this.tail.prev = this.head;
+      }
+    }
+
+    // Initialize Cache and DOM Elements
+    let lruCache = new LRUCache(3);
+
+    const cacheDisplay = document.getElementById("cache-display");
+    const cacheCapacityInput = document.getElementById("cache-capacity");
+
+    // Update Cache Display
+    function updateDisplay() {
+      cacheDisplay.innerHTML = "";
+      const contents = lruCache.getCacheContents();
+      contents.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `Key: ${item.key}, Value: ${item.value}`;
+        cacheDisplay.appendChild(li);
+      });
+    }
+
+    // Event Listeners
+    document.getElementById("add-btn").addEventListener("click", () => {
+      const key = prompt("Enter key:");
+      const value = prompt("Enter value:");
+      if (key && value) {
+        lruCache.put(key, value);
+        updateDisplay();
+      }
+    });
+
+    document.getElementById("get-btn").addEventListener("click", () => {
+      const key = prompt("Enter key to get value:");
+      if (key) {
+        const value = lruCache.get(key);
+        if (value !== null) {
+          alert(`Value for key "${key}" is "${value}".`);
+          updateDisplay();
+        }
+      }
+    });
+
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      lruCache.resetCache();
+      updateDisplay();
+    });
+
+    cacheCapacityInput.addEventListener("change", () => {
+      const newCapacity = parseInt(cacheCapacityInput.value, 10);
+      if (newCapacity > 0) {
+        lruCache = new LRUCache(newCapacity);
+        updateDisplay();
+      } else {
+        alert("Capacity must be a positive number.");
+        cacheCapacityInput.value = lruCache.capacity;
+      }
+    });
+
+    // Initial Display
+    updateDisplay();
+  </script>
+</body>
+</html>

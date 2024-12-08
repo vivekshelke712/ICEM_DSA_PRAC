@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dictionary with Hash Table</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg rounded-lg p-6 w-full max-w-3xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">Hash Table Dictionary</h1>
+    <div class="mb-4">
+      <label for="dictionary-size" class="block text-sm font-medium text-gray-700">Hash Table Size:</label>
+      <input type="number" id="dictionary-size" value="10" min="1" class="block w-full mt-1 p-2 border rounded-md bg-gray-50">
+    </div>
+    <div class="flex space-x-4 mb-4">
+      <button id="insert-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Insert Word</button>
+      <button id="lookup-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Lookup Word</button>
+      <button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Delete Word</button>
+    </div>
+    <div class="border p-4 bg-gray-50 rounded-md">
+      <h2 class="font-bold mb-2">Dictionary Contents:</h2>
+      <ul id="dictionary-display" class="list-disc list-inside text-gray-700">
+        <!-- Dictionary contents will be dynamically updated -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Hash Table Implementation
+    class HashTable {
+      constructor(size) {
+        this.size = size;
+        this.table = new Array(size).fill(null).map(() => []);
+      }
+
+      // Custom hash function
+      _hash(key) {
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+          hash = (hash + key.charCodeAt(i) * i) % this.size;
+        }
+        return hash;
+      }
+
+      // Insert a word into the dictionary
+      insert(word, meaning) {
+        const index = this._hash(word);
+        const bucket = this.table[index];
+
+        // Check if the word already exists and update meaning
+        for (let i = 0; i < bucket.length; i++) {
+          if (bucket[i][0] === word) {
+            bucket[i][1] = meaning;
+            return;
+          }
+        }
+
+        // Insert new word-meaning pair
+        bucket.push([word, meaning]);
+      }
+
+      // Lookup a word in the dictionary
+      lookup(word) {
+        const index = this._hash(word);
+        const bucket = this.table[index];
+
+        for (const [key, value] of bucket) {
+          if (key === word) return value;
+        }
+        return null; // Word not found
+      }
+
+      // Delete a word from the dictionary
+      delete(word) {
+        const index = this._hash(word);
+        const bucket = this.table[index];
+
+        for (let i = 0; i < bucket.length; i++) {
+          if (bucket[i][0] === word) {
+            bucket.splice(i, 1); // Remove the word from the bucket
+            return true;
+          }
+        }
+        return false; // Word not found
+      }
+
+      // Get all words for display
+      getAllWords() {
+        const allWords = [];
+        this.table.forEach((bucket, index) => {
+          bucket.forEach(([word, meaning]) => {
+            allWords.push({ index, word, meaning });
+          });
+        });
+        return allWords;
+      }
+    }
+
+    // Initialize Dictionary and DOM Elements
+    let hashTable = new HashTable(10);
+
+    const dictionaryDisplay = document.getElementById("dictionary-display");
+    const dictionarySizeInput = document.getElementById("dictionary-size");
+
+    // Update Dictionary Display
+    function updateDisplay() {
+      dictionaryDisplay.innerHTML = "";
+      const words = hashTable.getAllWords();
+      words.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `Index: ${item.index}, Word: "${item.word}", Meaning: "${item.meaning}"`;
+        dictionaryDisplay.appendChild(li);
+      });
+    }
+
+    // Event Listeners
+    document.getElementById("insert-btn").addEventListener("click", () => {
+      const word = prompt("Enter word:");
+      const meaning = prompt("Enter meaning:");
+      if (word && meaning) {
+        hashTable.insert(word, meaning);
+        updateDisplay();
+      }
+    });
+
+    document.getElementById("lookup-btn").addEventListener("click", () => {
+      const word = prompt("Enter word to lookup:");
+      if (word) {
+        const meaning = hashTable.lookup(word);
+        if (meaning) {
+          alert(`The meaning of "${word}" is: "${meaning}".`);
+        } else {
+          alert(`"${word}" not found in the dictionary.`);
+        }
+      }
+    });
+
+    document.getElementById("delete-btn").addEventListener("click", () => {
+      const word = prompt("Enter word to delete:");
+      if (word) {
+        const success = hashTable.delete(word);
+        if (success) {
+          alert(`"${word}" was deleted from the dictionary.`);
+          updateDisplay();
+        } else {
+          alert(`"${word}" not found in the dictionary.`);
+        }
+      }
+    });
+
+    dictionarySizeInput.addEventListener("change", () => {
+      const newSize = parseInt(dictionarySizeInput.value, 10);
+      if (newSize > 0) {
+        hashTable = new HashTable(newSize);
+        updateDisplay();
+      } else {
+        alert("Hash table size must be a positive number.");
+        dictionarySizeInput.value = hashTable.size;
+      }
+    });
+
+    // Initial Display
+    updateDisplay();
+  </script>
+</body>
+</html>

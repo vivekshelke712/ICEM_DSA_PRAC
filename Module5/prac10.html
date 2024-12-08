@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Emergency Sort - Heap Sort</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full">
+    <h1 class="text-2xl font-bold text-center mb-4">Emergency Room Patient Sort</h1>
+    
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-1">Patient Name:</label>
+      <input id="patient-name" type="text" class="block w-full border rounded-md p-2" placeholder="Enter patient's name" />
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-1">Emergency Level (1-5):</label>
+      <input id="emergency-level" type="number" min="1" max="5" class="block w-full border rounded-md p-2" placeholder="Enter emergency level" />
+    </div>
+    <button id="add-patient" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mb-4">
+      Add Patient
+    </button>
+
+    <button id="sort-patients" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">
+      Sort Patients
+    </button>
+
+    <div id="results" class="mt-6 bg-gray-50 p-4 rounded-md">
+      <h2 class="text-lg font-bold mb-2">Sorted Patients:</h2>
+      <ul class="list-disc list-inside text-gray-700" id="patient-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    let patients = [];
+
+    // Max-Heap Helper Functions
+    function heapify(arr, n, i) {
+      let largest = i;
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
+
+      if (left < n && arr[left].emergencyLevel > arr[largest].emergencyLevel) {
+        largest = left;
+      }
+
+      if (right < n && arr[right].emergencyLevel > arr[largest].emergencyLevel) {
+        largest = right;
+      }
+
+      if (largest !== i) {
+        [arr[i], arr[largest]] = [arr[largest], arr[i]];
+        heapify(arr, n, largest);
+      }
+    }
+
+    function buildMaxHeap(arr) {
+      const n = arr.length;
+      for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        heapify(arr, n, i);
+      }
+    }
+
+    function heapSort(arr) {
+      buildMaxHeap(arr);
+      for (let i = arr.length - 1; i > 0; i--) {
+        [arr[0], arr[i]] = [arr[i], arr[0]];
+        heapify(arr, i, 0);
+      }
+      return arr.reverse(); // Reverse for descending order
+    }
+
+    // Add Patient
+    document.getElementById('add-patient').addEventListener('click', () => {
+      const name = document.getElementById('patient-name').value.trim();
+      const emergencyLevel = parseInt(document.getElementById('emergency-level').value, 10);
+
+      if (!name || isNaN(emergencyLevel) || emergencyLevel < 1 || emergencyLevel > 5) {
+        alert('Please enter a valid name and emergency level (1-5).');
+        return;
+      }
+
+      patients.push({ name, emergencyLevel });
+      document.getElementById('patient-name').value = '';
+      document.getElementById('emergency-level').value = '';
+
+      alert('Patient added successfully!');
+    });
+
+    // Sort and Display Patients
+    document.getElementById('sort-patients').addEventListener('click', () => {
+      const sortedPatients = heapSort([...patients]); // Sort without modifying original
+      const patientList = document.getElementById('patient-list');
+      patientList.innerHTML = '';
+
+      sortedPatients.forEach(patient => {
+        const li = document.createElement('li');
+        li.textContent = `${patient.name} (Emergency Level: ${patient.emergencyLevel})`;
+        patientList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>

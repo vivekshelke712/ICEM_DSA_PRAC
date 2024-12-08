@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Library Sorting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-md rounded p-6 w-full max-w-4xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">Music Library</h1>
+    <div class="mb-4">
+      <label for="sort-by" class="block text-sm font-medium text-gray-700">Sort By:</label>
+      <select id="sort-by" class="block w-full mt-1 p-2 border rounded-md bg-gray-50">
+        <option value="duration">Duration</option>
+        <option value="artist">Artist</option>
+        <option value="genre">Genre</option>
+      </select>
+    </div>
+    <button id="sort-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sort</button>
+    
+    <table class="table-auto w-full mt-6 border-collapse border border-gray-300">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="border px-4 py-2">Title</th>
+          <th class="border px-4 py-2">Duration (mins)</th>
+          <th class="border px-4 py-2">Artist</th>
+          <th class="border px-4 py-2">Genre</th>
+        </tr>
+      </thead>
+      <tbody id="song-table" class="bg-white">
+        <!-- Rows will be dynamically generated -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Sample Music Library with Indian Artists
+    const songs = [
+      { title: "Kesariya", duration: 4.5, artist: "Arijit Singh", genre: "Bollywood" },
+      { title: "Tum Hi Ho", duration: 4.2, artist: "Arijit Singh", genre: "Romantic" },
+      { title: "Jai Ho", duration: 5, artist: "A. R. Rahman", genre: "Bollywood" },
+      { title: "Mitti Di Khushboo", duration: 3.8, artist: "Ayushmann Khurrana", genre: "Folk" },
+      { title: "Zinda", duration: 4.5, artist: "Shankar Mahadevan", genre: "Rock" },
+      { title: "Channa Mereya", duration: 4.6, artist: "Arijit Singh", genre: "Bollywood" },
+      { title: "Vande Mataram", duration: 6.5, artist: "A. R. Rahman", genre: "Patriotic" },
+      { title: "Dil Dhadakne Do", duration: 3.7, artist: "Farhan Akhtar", genre: "Pop" },
+      { title: "Raabta", duration: 4.1, artist: "Arijit Singh", genre: "Romantic" },
+      { title: "Breathless", duration: 3.5, artist: "Shankar Mahadevan", genre: "Fusion" },
+    ];
+
+    // Render the table
+    function renderTable(data) {
+      const table = document.getElementById('song-table');
+      table.innerHTML = '';
+      data.forEach(song => {
+        table.innerHTML += `
+          <tr class="text-center">
+            <td class="border px-4 py-2">${song.title}</td>
+            <td class="border px-4 py-2">${song.duration}</td>
+            <td class="border px-4 py-2">${song.artist}</td>
+            <td class="border px-4 py-2">${song.genre}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Quick Sort Implementation
+    function quickSort(array, key) {
+      if (array.length <= 1) return array;
+      const pivot = array[array.length - 1];
+      const left = array.slice(0, -1).filter(item => item[key] < pivot[key]);
+      const right = array.slice(0, -1).filter(item => item[key] >= pivot[key]);
+      return [...quickSort(left, key), pivot, ...quickSort(right, key)];
+    }
+
+    // Event Listener for Sorting
+    document.getElementById('sort-btn').addEventListener('click', () => {
+      const sortBy = document.getElementById('sort-by').value;
+      const sortedSongs = quickSort(songs, sortBy);
+      renderTable(sortedSongs);
+    });
+
+    // Initial Render
+    renderTable(songs);
+  </script>
+
+</body>
+</html>
